@@ -8,7 +8,7 @@ from typing import Dict, Any, Annotated, List
 from io import StringIO
 
 from customState import CustomState
-from utils import *
+from .utils import *
 
 # ------------------------------
 # 获取记忆里的CSV结果

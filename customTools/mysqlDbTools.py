@@ -14,7 +14,6 @@ from customState import CustomState
 
 load_dotenv()
 
-
 def _connect() -> Optional[mysql.connector.MySQLConnection]:
     try:
         conn = mysql.connector.connect(

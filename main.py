@@ -12,7 +12,7 @@ def main():
             "user_id": "user_123",
             "user_name": "Joy",
         },
-        "recursion_limit": 10
+        "recursion_limit": 25
     }
     messages = [HumanMessage(content="我想知道在data_test表中有多少订单是超期的？超期的定义是：没有实际开始/实际时间比预期时间晚")]
     # messages = [HumanMessage(content="你好！")]
