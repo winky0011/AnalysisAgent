@@ -1,3 +1,17 @@
+# AnalysisAgent
+## 简介
+AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户的自然语言查询，并根据查询内容从数据库中提取相关数据进行分析。
+
+目前已实现：
+- 从数据库中提取数据进行分析（目前sql写死了）
+
+待实现：
+- 报告生成节点模型的训练（生成更有建设性、更规范的报告）
+- Text2SQL直接生成查询语句
+- 实现长期记忆，用于存储用户的查询历史和分析结果
+
+
+## 使用方法
 创建环境
 ```
 pip install -r requirements.txt
@@ -41,5 +55,5 @@ python create_data.py
 
 测试agent
 ```
-python test.py
+python main.py
 ```
