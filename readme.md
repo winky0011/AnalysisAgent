@@ -2,22 +2,35 @@
 ## 简介
 AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户的自然语言查询，并根据查询内容从数据库中提取相关数据进行分析。
 
+
 目前已实现：
-- 从数据库中提取数据进行分析（目前sql写死了）
+- 从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）
 - 长期记忆的初步实现，存储用户的查询历史和分析结果到内存中
 
+
 待实现：
+- Text2SQL 直接生成查询语句
 - 报告生成节点模型的训练（生成更有建设性、更规范的报告）
-- Text2SQL直接生成查询语句
 - 增加外挂知识库，用于辅助情况的判断以及报告的生成（类似于：如何提高管理效率、优化管理措施等信息）
 - 长期记忆的优化，借助外挂数据库实现持久化存储
+- 外部 MCP 工具的接入
 
-涉及的技术栈：LangGraph、LangMem
+
+涉及的技术栈：LangGraph、LangMem、text2sql、SFT
+
+
+参考资料：
+- https://langchain-ai.github.io/langgraph/
+- https://langchain-ai.github.io/langmem/
+- https://github.com/DMIRLAB-Group/Track-SQL
+- https://arxiv.org/abs/2503.16252
 
 
 ## 使用方法
-创建环境
+创建环境，安装对应的依赖
 ```
+conda create -n analysisagent python=3.12
+conda activate analysisagent
 pip install -r requirements.txt
 ```
 

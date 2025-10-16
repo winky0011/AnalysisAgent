@@ -11,7 +11,7 @@ from langchain_core.runnables import RunnableConfig
 
 from dotenv import load_dotenv
 import os
-from typing import Optional, Any, List
+from typing import Any, List
 
 from memoryState import CustomState, AnalysisMemory
 from customTools import get_all_tools
@@ -49,7 +49,7 @@ class AnalysisWorkflow:
         )
 
     def _init_memory_store(self):
-        """初始化长期记忆存储（含嵌入模型）"""
+        """初始化长期记忆存储"""
         embedding_model = os.getenv("EMBEDDING_MODEL")
         embedding_provider = os.getenv("EMBEDDING_PROVIDER")
         embedding_dim = int(os.getenv("EMBEDDING_DIM", "768"))
