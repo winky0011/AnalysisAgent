@@ -78,16 +78,3 @@ class Text2SQLAgent:
     
     def get_agent(self):
         return self.agent
-
-# 测试
-# text2sql_agent = Text2SQLAgent()
-# agent = text2sql_agent.get_agent()
-# question = "你数据库存储了什么数据，能解答我什么问题？？？"
-
-# # 流式输出 Agent 执行过程（包含工具调用、查询结果、最终回答）
-# for step in agent.stream(
-#     {"messages": [{"role": "user", "content": question}]},
-#     stream_mode="values",  # 按步骤输出关键信息
-# ):
-#     # 打印每一步的最后一条消息（人类问题、AI 工具调用、工具返回结果、最终回答）
-#     step["messages"][-1].pretty_print()
