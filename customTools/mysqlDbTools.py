@@ -180,6 +180,128 @@ def filter_data_by_date_range(state: Annotated[CustomState, InjectedState], tool
             _disconnect(conn)  # 传入 conn
 
 
+# ------------------------------
+# 获取当前数据库中有什么表
+# ------------------------------
+@tool
+def get_mysql_tables() -> Dict[str, List[str]]:
+    """
+    获取当前MySQL数据库中的所有表名
+    返回:
+        包含表名列表的字典
+    """
+    query = "SHOW TABLES"
+    conn = _connect()
+    if not conn:
+        return {"status": "error", "message": "数据库连接失败", "tables": []}
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        tables = [row[0] for row in cursor.fetchall()]
+        return {"status": "success", "message": "获取表成功", "tables": tables}
+    except Error as e:
+        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "tables": []}
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            _disconnect(conn)  # 传入 conn
+
+
+# ------------------------------
+# 获取指定表的字段
+# ------------------------------
+@tool
+def get_table_columns(table_name: str) -> Dict[str, List[str]]:
+    """
+    获取MySQL中指定表的所有字段名
+    参数:
+        table_name: 表名
+    返回:
+        包含字段名列表的字典
+    """
+    query = f"SHOW COLUMNS FROM {table_name}"
+    conn = _connect()
+    if not conn:
+        return {"status": "error", "message": "数据库连接失败", "columns": []}
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+        columns = [row[0] for row in cursor.fetchall()]
+        return {"status": "success", "message": f"获取{table_name}表字段成功", "columns": columns}
+    except Error as e:
+        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "columns": []}
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            _disconnect(conn)  # 传入 conn
+
+
+# ------------------------------
+# 执行sql查询语句，并且查询结果以csv样式暂存在内存中
+# ------------------------------
+@tool
+def execute_sql_query(state: Annotated[CustomState, InjectedState], query: str) -> Dict[str, Any]:
+    """
+    执行MySQL查询语句，将结果暂存在内存中的CSV格式
+    参数:
+        query: 要执行的SQL查询语句
+    返回:
+        包含执行状态、消息、暂存的CSV数据和行数的字典
+    """
+    # 检查sql语句是否包含危险操作
+    if any(keyword in query.lower() for keyword in ["delete", "drop", "truncate"]):
+        return {"status": "error", "message": "查询语句包含危险操作，已拒绝执行", "csv_data": "", "row_count": 0}
+
+    # 是否sql注入风险
+    if any(char in query for char in [";", "--", "#"]):
+        return {"status": "error", "message": "查询语句包含潜在的SQL注入风险，已拒绝执行", "csv_data": "", "row_count": 0}
+    
+    # sql只允许查询操作
+    if not query.strip().lower().startswith("select"):
+        return {"status": "error", "message": "查询语句必须以SELECT开头", "csv_data": "", "row_count": 0}
+
+    conn = _connect()
+    if not conn:
+        return {"status": "error", "message": "数据库连接失败", "csv_data": "", "row_count": 0}
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        records = cursor.fetchall()
+        columns = cursor.column_names if records else []
+
+        # 内存CSV生成
+        csv_buffer = StringIO()
+        writer = csv.DictWriter(csv_buffer, fieldnames=columns)
+        writer.writeheader()
+        writer.writerows(records)
+        csv_buffer.seek(0)
+
+        return Command(update={
+            'csv_buffer': csv_buffer,
+            'messages': [
+                ToolMessage(
+                    content=f"查询成功，获取{len(records)}条记录",
+                    status="success",  # 额外元数据：工具调用状态
+                    columns=list(columns),
+                    row_count=len(records),
+                    tool_call_id=tool_call_id
+                )
+            ]
+        })
+    except Error as e:
+        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "csv_data": "", "row_count": 0}
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            _disconnect(conn)  # 传入 conn
+
+
 def get_mysql_tools() -> List[BaseTool]:
     return [
         query_data_test, 
