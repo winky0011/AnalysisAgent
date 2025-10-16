@@ -1,4 +1,5 @@
 # AnalysisAgent
+
 ## 简介
 > 项目启动时间：2025年10月14日
 > 
@@ -33,6 +34,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://langchain-ai.github.io/langmem/
 - https://github.com/DMIRLAB-Group/Track-SQL
 - https://arxiv.org/abs/2503.16252
+- https://github.com/1517005260/graph-rag-agent
 
 
 ## 使用方法
