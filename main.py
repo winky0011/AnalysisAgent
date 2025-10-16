@@ -1,6 +1,6 @@
 # main.py
 import asyncio
-from agent import *
+from supervisor import *
 
 async def main():
     config = {"configurable": {"langgraph_user_id": "test_user_001"}}

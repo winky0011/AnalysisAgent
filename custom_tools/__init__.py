@@ -1,6 +1,6 @@
-from .csvTools import get_csv_tools
-from .mathTools import get_math_tools
-from .mysqlDbTools import get_mysql_tools
+from .csv_tools import get_csv_tools
+from .math_tools import get_math_tools
+from .mysql_tools import get_mysql_tools
 
 __all__ = [
     "get_csv_tools",

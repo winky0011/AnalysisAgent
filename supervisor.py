@@ -13,8 +13,8 @@ from dotenv import load_dotenv
 import os
 from typing import Any, List
 
-from memoryState import CustomState, AnalysisMemory
-from customTools import get_all_tools
+from memory_state import CustomState, AnalysisMemory
+from custom_tools import get_all_tools
 from prompt import system_prompt, memory_prompt
 
 load_dotenv()

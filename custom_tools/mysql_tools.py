@@ -10,7 +10,7 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-from memoryState import CustomState
+from memory_state import CustomState
 
 load_dotenv()
 
@@ -244,9 +244,9 @@ def get_table_columns(table_name: str) -> Dict[str, List[str]]:
 # 执行sql查询语句，并且查询结果以csv样式暂存在内存中
 # ------------------------------
 @tool
-def execute_sql_query(state: Annotated[CustomState, InjectedState], query: str) -> Dict[str, Any]:
+def execute_sql_query(state: Annotated[CustomState, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId], query: str) -> Dict[str, Any]:
     """
-    执行MySQL查询语句，将结果暂存在内存中的CSV格式
+    执行MySQL查询语句，将结果以CSV格式暂存在内存中，如果后续涉及到对该数据的操作，请务必先将数据加载到内存中。
     参数:
         query: 要执行的SQL查询语句
     返回:
@@ -306,5 +306,6 @@ def get_mysql_tools() -> List[BaseTool]:
     return [
         query_data_test, 
         get_data_test_columns, 
-        filter_data_by_date_range
+        filter_data_by_date_range,
+        execute_sql_query
     ]

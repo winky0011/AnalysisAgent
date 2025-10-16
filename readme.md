@@ -8,8 +8,11 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 
 
 目前已实现：
-- 从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）
-- 长期记忆的初步实现，存储用户的查询历史和分析结果到内存中
+- 从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）；
+- 长期记忆的初步实现，存储用户的查询历史和分析结果到内存中；
+- 采用 `Multi-agent supervisor` 架构：
+  - SQLAgent的初步实现，基于官方提供的教程：[sql-agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
+  - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
 
 
 待实现：
@@ -71,9 +74,9 @@ LANGSMITH_API_KEY=xxxx
 LANGSMITH_PROJECT=xxxx
 ```
 
-生成测试数据，会在指定数据库内创建一个名为`data_test`的表
+生成测试数据，会在指定数据库内创建一个名为`data_test`的表。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
 ```
-python create_data.py
+python data_create/data_test.py
 ```
 
 测试agent
