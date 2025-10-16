@@ -12,7 +12,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - 从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）；
 - 长期记忆的初步实现，存储用户的查询历史和分析结果到内存中；
 - 采用 `Multi-agent supervisor` 架构：
-  - SQLAgent的初步实现，基于官方提供的教程：[sql-agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
+  - SQLAgenty以及StatisticsAgent的初步实现（未测试），基于官方提供的教程：[sql-agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
   - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
 
 
@@ -26,7 +26,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - 外部 MCP 工具的接入
 
 
-涉及的技术栈：LangGraph、LangMem、text2sql、SFT
+涉及的技术栈/框架：LangGraph、LangMem、text2sql、SFT、neo4j、RAG
 
 
 参考资料：
@@ -35,6 +35,8 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://github.com/DMIRLAB-Group/Track-SQL
 - https://arxiv.org/abs/2503.16252
 - https://github.com/1517005260/graph-rag-agent
+- https://github.com/antvis/mcp-server-chart
+- https://github.com/24mlight/a-share-mcp-is-just-i-need
 
 
 ## 使用方法

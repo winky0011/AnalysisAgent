@@ -10,6 +10,7 @@ from langchain_community.agent_toolkits import SQLDatabaseToolkit
 
 from custom_tools import get_mysql_tools
 from memory_state import CustomState
+from prompt import sql_prompt
 
 load_dotenv()
 
@@ -58,17 +59,10 @@ class Text2SQLAgent:
         
         每次调用都会创建一个新的智能体实例，确保状态隔离。
         """
-        system_prompt = """
-你是一个用于与 MySQL 数据库交互的 Agent，需严格遵循以下规则：
-1. 给定用户问题后，先获取数据库表列表，再查询相关表的结构，最后生成 SQL。
-2. 生成 **MySQL 语法** 的查询语句。
-3. 如果后续涉及对查询结果的操作，请以csv样式将查询结果暂存在内存中，否则返回 {top_k} 条查询结果，优先按相关字段排序展示关键信息。
-4. 仅查询所需列，禁止使用 SELECT * 获取所有列；禁止执行 DML 语句（INSERT/UPDATE/DELETE/DROP 等）。
-5. 执行查询前必须用 sql_db_query_checker 工具检查语法正确性，若报错需重新修改查询。
-""".format(
-    dialect=self.db.dialect,  # 自动填充数据库类型
-    top_k=5  # 默认返回前 5 条结果
-)
+        system_prompt = sql_prompt.format(
+                            dialect=self.db.dialect,  # 自动填充数据库类型
+                            top_k=5  # 默认返回前 5 条结果
+                        )
         return create_react_agent(
             model=self.llm,
             tools=self.tools,

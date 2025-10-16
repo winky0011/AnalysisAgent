@@ -1,43 +1,16 @@
-from langchain_openai import OpenAIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain.callbacks.streaming_aiter import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import AsyncCallbackManager
 
 import os
-from pathlib import Path
 from dotenv import load_dotenv
-
-# 设置tiktoken缓存避免网络问题
-def setup_cache():
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    
-    # 缓存在本项目下的cache/tiktoken
-    cache_dir = Path(project_root) / "cache" / "tiktoken"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    os.environ["TIKTOKEN_CACHE_DIR"] = str(cache_dir)
-
-    # 缓存在本项目下的cache/huggingface
-    cache_dir = Path(project_root) / "cache" / "huggingface"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    os.environ["HF_HOME"] = str(cache_dir)
-
-setup_cache()
 
 load_dotenv()
 
-# def get_embeddings_model():
-#     model = OpenAIEmbeddings(
-#         model=os.getenv('OPENAI_EMBEDDINGS_MODEL'),
-#         api_key=os.getenv('OPENAI_API_KEY'),
-#         base_url=os.getenv('OPENAI_EMBEDDINGS_URL'),
-#     )
-#     return model
-
-# 指定缓存路径为./cache下
 def get_embeddings_model():
     return HuggingFaceEmbeddings(
-        model_name="all-MiniLM-L6-v2",
+        model_name=os.getenv("EMBEDDING_MODEL"),
         model_kwargs={'device': 'cpu'},  # 或 'cpu'
         encode_kwargs={'normalize_embeddings': True}
     )
@@ -103,10 +76,6 @@ if __name__ == '__main__':
     # 测试llm
     llm = get_llm_model()
     print(llm.invoke("你好"))
-
-    # 由于langchain版本问题，这个目前测试会报错
-    # llm_stream = get_stream_llm_model()
-    # print(llm_stream.invoke("你好"))
 
     # 测试embedding
     test_text = "你好，这是一个测试。"
