@@ -23,12 +23,20 @@ class AnalysisWorkflow:
             temperature=0.5,
         )
 
-        # embeddings = init_embeddings('all-MiniLM-L6-v2')
+        # 长期记忆存储
+        embeddings = init_embeddings(
+            model=os.getenv("EMBEDDING_MODEL"),
+            provider=os.getenv("EMBEDDING_PROVIDER"),
+            model_kwargs={
+                    "device": "cpu",
+                    "local_files_only": True
+                }
+        )
         self.store = InMemoryStore(
-            # index={
-            #     'embed': embeddings,
-            #     'dims': 1536,
-            # }
+            index={
+                'embed': embeddings,
+                'dims': int(os.getenv("EMBEDDING_DIM")),
+            }
         )  # 长期记忆
     
     def graph_builder(self):
