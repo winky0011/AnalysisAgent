@@ -1,9 +1,8 @@
 from langchain.chat_models import init_chat_model
-from langgraph_supervisor import create_supervisor
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Send
 from langgraph.prebuilt import InjectedState
-from langchain_core.tools import tool, InjectedToolCallId
+from langchain_core.tools import tool
 from langgraph.graph import StateGraph, START, MessagesState, END
 from langgraph.types import Command
 
@@ -112,21 +111,18 @@ class SupervisorAgent:
         return self.agent
 
 # 测试
-from utils import pretty_print_messages
-supervisor = SupervisorAgent().get_agent()
-for chunk in supervisor.stream(
-    {
-        "messages": [
-            {
-                "role": "user",
-                "content": "1 + 2",
-            }
-        ]
-    },
-    subgraphs=True,
-):
-    pretty_print_messages(chunk, last_message=True)
-
-# final_message_history = chunk["supervisor"]["messages"]
-# for message in final_message_history:
-#     message.pretty_print()
+if __name__ == "__main__":
+    from utils import pretty_print_messages
+    supervisor = SupervisorAgent().get_agent()
+    for chunk in supervisor.stream(
+        {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "1 + 2",
+                }
+            ]
+        },
+        subgraphs=True,
+    ):
+        pretty_print_messages(chunk, last_message=True)

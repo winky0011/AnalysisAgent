@@ -7,6 +7,9 @@ from langgraph.prebuilt import create_react_agent
 
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
+from langgraph.store.memory import InMemoryStore
+from langchain.embeddings import init_embeddings
+from langmem import create_manage_memory_tool, create_search_memory_tool
 
 from custom_tools import get_mysql_tools
 from memory_state import CustomState
@@ -22,6 +25,7 @@ class Text2SQLAgent:
     def __init__(self) -> None:
         self.db = self._init_db()
         self.llm = self._init_llm()
+        self.store = self._init_memory_store()
         self.tools = self._init_tools()
         self.agent = self._init_agent()
 
@@ -37,11 +41,38 @@ class Text2SQLAgent:
 
         return SQLDatabase.from_uri(engine_url)
 
+    def _init_memory_store(self):
+        """初始化长期记忆存储"""
+        embedding_model = os.getenv("EMBEDDING_MODEL")
+        embedding_provider = os.getenv("EMBEDDING_PROVIDER")
+        embedding_dim = int(os.getenv("EMBEDDING_DIM", "768"))
+
+        embeddings = init_embeddings(
+            model=embedding_model,
+            provider=embedding_provider,
+            model_kwargs={
+                "device": "cpu",
+                "local_files_only": True,
+            }
+        )
+
+        return InMemoryStore(
+            index={
+                'embed': embeddings,
+                'dims': embedding_dim,
+            }
+        )
+
+
     def _init_tools(self):
         """初始化工具集"""
         toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
         tools = toolkit.get_tools()   # langgraph中提供的工具
         tools.extend(get_mysql_tools())  # 自定义工具
+        tools.extend([
+            create_manage_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
+            create_search_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
+        ])
         return tools
 
     def _init_llm(self):
@@ -68,7 +99,8 @@ class Text2SQLAgent:
             tools=self.tools,
             prompt=system_prompt,
             # state_schema=CustomState,
-            name="text2sql_agent"
+            name="text2sql_agent",
+            store=self.store,
         )
     
     def get_agent(self):

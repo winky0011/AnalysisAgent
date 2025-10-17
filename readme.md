@@ -22,8 +22,9 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
   - 基于SFT训练的Text2SQL模型
 - 报告生成节点模型的训练（生成更有建设性、更规范的报告）
 - 增加外挂知识库，用于辅助情况的判断以及报告的生成（类似于：如何提高管理效率、优化管理措施等信息）
-- 长期记忆的优化，借助外挂数据库实现持久化存储
+- 长期记忆的优化，借助外挂数据库实现持久化存储（借助MemOS）
 - 外部 MCP 工具的接入（初步设想是引入echart工具）
+- agent之间的通信可以考虑使用 [A2A](https://github.com/a2aproject/a2a-python)
 
 
 涉及的技术栈/框架：LangGraph、LangMem、LangSmith、text2sql、SFT、neo4j、RAG、MCP
@@ -34,9 +35,11 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://langchain-ai.github.io/langmem/
 - https://github.com/DMIRLAB-Group/Track-SQL
 - https://arxiv.org/abs/2503.16252
+- https://arxiv.org/abs/2402.03578
 - https://github.com/1517005260/graph-rag-agent
 - https://github.com/antvis/mcp-server-chart
 - https://github.com/24mlight/a-share-mcp-is-just-i-need
+- https://github.com/a2aproject/a2a-python
 
 
 ## 使用方法
