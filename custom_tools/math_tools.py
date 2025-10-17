@@ -1,12 +1,17 @@
-from typing import Dict, List, Any
-from langchain_core.tools import tool, BaseTool
-from .utils import *
+from typing import Dict, List, Any, Annotated
+from langchain_core.tools import tool, BaseTool, InjectedToolCallId
+from .utils import parse_datetime  # 确保导入正确的时间解析函数
+
 
 # ------------------------------
 # 批量计算两个时间的对应差值
 # ------------------------------
 @tool
-def calculate_single_time_difference(time1: str, time2: str) -> Dict[str, Any]:
+def calculate_single_time_difference(
+    time1: str, 
+    time2: str,
+    tool_call_id: Annotated[str, InjectedToolCallId]  # 新增：自动注入工具调用ID
+) -> Dict[str, Any]:
     """
     计算两个时间点之间的差值（time1 - time2）
     
@@ -15,13 +20,14 @@ def calculate_single_time_difference(time1: str, time2: str) -> Dict[str, Any]:
         time2: 第二个时间字符串（如"2024-01-01 09:30"）
     
     返回:
-        包含时间差信息的字典，包括状态、差值（秒、分钟、小时、天）
+        包含时间差信息的字典，包括状态、差值（秒、分钟、小时、天）和工具调用ID
     """
     t1 = parse_datetime(time1)
     t2 = parse_datetime(time2)
     
     if not t1 or not t2:
         return {
+            "tool_call_id": tool_call_id,  # 新增：必传工具调用ID
             "status": "error",
             "message": f"无法解析时间格式：time1='{time1}', time2='{time2}'",
             "difference": None
@@ -31,6 +37,7 @@ def calculate_single_time_difference(time1: str, time2: str) -> Dict[str, Any]:
     diff_sec = diff.total_seconds()
     
     return {
+        "tool_call_id": tool_call_id,  # 新增：必传工具调用ID
         "status": "success",
         "message": "时间差计算完成",
         "difference": {
@@ -51,7 +58,11 @@ def calculate_single_time_difference(time1: str, time2: str) -> Dict[str, Any]:
 # 批量计算两个时间列表的对应差值
 # ------------------------------
 @tool
-def batch_calculate_time_differences(list1: List[str], list2: List[str]) -> Dict[str, Any]:
+def batch_calculate_time_differences(
+    list1: List[str], 
+    list2: List[str],
+    tool_call_id: Annotated[str, InjectedToolCallId]  # 新增：自动注入工具调用ID
+) -> Dict[str, Any]:
     """
     批量计算两个时间列表的对应差值（list1 - list2），并进行统计分析
     
@@ -60,10 +71,11 @@ def batch_calculate_time_differences(list1: List[str], list2: List[str]) -> Dict
         list2: 时间字符串列表（需与list1长度一致，如["2024-01-01 09:30", "2024-01-02 15:00"]）
     
     返回:
-        包含差值统计（正值/负值/零值数量）和超时最多的前五个样本的字典
+        包含差值统计（正值/负值/零值数量）、超时样本和工具调用ID的字典
     """
     if len(list1) != len(list2):
         return {
+            "tool_call_id": tool_call_id,  # 新增：必传工具调用ID
             "status": "error",
             "message": f"列表长度不匹配：list1({len(list1)}条) vs list2({len(list2)}条)",
             "statistics": None,
@@ -127,6 +139,7 @@ def batch_calculate_time_differences(list1: List[str], list2: List[str]) -> Dict
     )[:5]
 
     return {
+        "tool_call_id": tool_call_id,  # 新增：必传工具调用ID
         "status": "success",
         "message": f"完成{total}对时间差计算",
         "statistics": {
@@ -138,7 +151,6 @@ def batch_calculate_time_differences(list1: List[str], list2: List[str]) -> Dict
             "positive_ratio": round(positive / total * 100, 2) if total > 0 else 0,
             "negative_ratio": round(negative / total * 100, 2) if total > 0 else 0
         },
-        # "differences": differences,  # 所有差值详细信息
         "top_overtime_samples": top_overtime  # 超时最多的前5个样本
     }
 
@@ -147,7 +159,12 @@ def batch_calculate_time_differences(list1: List[str], list2: List[str]) -> Dict
 # 基础数学运算
 # ------------------------------
 @tool
-def calculate_math(operation: str, a: float, b: float) -> Dict[str, Any]:
+def calculate_math(
+    operation: str, 
+    a: float, 
+    b: float,
+    tool_call_id: Annotated[str, InjectedToolCallId]  # 调整参数顺序，确保注入正常
+) -> Dict[str, Any]:
     """
     基础数学运算（用于数据分析中的数值计算，如平均值、总和等衍生计算）
     参数:
@@ -155,7 +172,7 @@ def calculate_math(operation: str, a: float, b: float) -> Dict[str, Any]:
         a: 第一个数值
         b: 第二个数值
     返回:
-        包含运算结果的字典
+        包含运算结果和工具调用ID的字典
     """
     try:
         if operation == "add":
@@ -166,13 +183,33 @@ def calculate_math(operation: str, a: float, b: float) -> Dict[str, Any]:
             result = a * b
         elif operation == "divide":
             if b == 0:
-                return {"status": "error", "message": "除数不能为0", "result": None}
+                return {
+                    "tool_call_id": tool_call_id,
+                    "status": "error", 
+                    "message": "除数不能为0", 
+                    "result": None
+                }
             result = a / b
         else:
-            return {"status": "error", "message": f"不支持的运算：{operation}", "result": None}
-        return {"status": "success", "message": f"{a} {operation} {b} = {result}", "result": round(result, 2)}
+            return {
+                "tool_call_id": tool_call_id,
+                "status": "error", 
+                "message": f"不支持的运算：{operation}", 
+                "result": None
+            }
+        return {
+            "tool_call_id": tool_call_id,
+            "status": "success", 
+            "message": f"{a} {operation} {b} = {result}", 
+            "result": round(result, 2)
+        }
     except Exception as e:
-        return {"status": "error", "message": f"运算错误: {str(e)}", "result": None}
+        return {
+            "tool_call_id": tool_call_id,
+            "status": "error", 
+            "message": f"运算错误: {str(e)}", 
+            "result": None
+        }
 
 
 def get_math_tools() -> List[BaseTool]:

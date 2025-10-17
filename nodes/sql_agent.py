@@ -67,7 +67,8 @@ class Text2SQLAgent:
             model=self.llm,
             tools=self.tools,
             prompt=system_prompt,
-            state_schema=CustomState,
+            # state_schema=CustomState,
+            name="text2sql_agent"
         )
     
     def get_agent(self):

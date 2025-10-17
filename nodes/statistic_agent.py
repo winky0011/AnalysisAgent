@@ -44,7 +44,8 @@ class StatisticsAgent:
             model=self.llm,
             tools=self.tools,
             prompt=statistic_prompt,
-            state_schema=CustomState,
+            # state_schema=CustomState,
+            name="statistic_agent"
         )
     
     def get_agent(self):

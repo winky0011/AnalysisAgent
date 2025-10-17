@@ -1,7 +1,7 @@
 from langgraph.prebuilt.chat_agent_executor import AgentState
 
 from pydantic import BaseModel
-from typing import NotRequired
+from typing import NotRequired, List
 from io import StringIO
 
 # ------------------------------
@@ -11,6 +11,7 @@ class CustomState(AgentState):
     user_name: NotRequired[str]
     user_id: NotRequired[str]
     csv_buffer: NotRequired[StringIO]  # csv文件内存
+    messages: NotRequired[List[dict]]  # 对话记录
 
 # ------------------------------
 # 长期记忆的存储结构

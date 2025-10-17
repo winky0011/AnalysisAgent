@@ -11,8 +11,8 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 目前已实现：
 - ~~从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）；~~
 - ~~长期记忆的初步实现，存储用户的查询历史和分析结果到内存中；~~
-- 采用 `Multi-agent supervisor` 架构：
-  - SQLAgenty以及StatisticsAgent的初步实现（未测试），基于官方提供的教程：[sql-agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)
+- 采用 [`Multi-agent supervisor`](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor) 架构：
+  - [SQLAgenty](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/) 以及 StatisticsAgent 的初步实现
   - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
 
 
@@ -26,7 +26,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - 外部 MCP 工具的接入（初步设想是引入echart工具）
 
 
-涉及的技术栈/框架：LangGraph、LangMem、text2sql、SFT、neo4j、RAG、MCP
+涉及的技术栈/框架：LangGraph、LangMem、LangSmith、text2sql、SFT、neo4j、RAG、MCP
 
 
 参考资料：
@@ -54,12 +54,17 @@ python -c "from sentence_transformers import SentenceTransformer; model = Senten
 
 新建.env文件，设置对应变量
 ```
-# MySQL数据库配置
+# MySQL数据库配置，建议用户权限不要太高！！！
 MYSQL_HOST=xxxx
 MYSQL_PORT=xxxx
 MYSQL_USER=xxxx
 MYSQL_PASSWORD=xxxx
 MYSQL_DATABASE=xxxx
+
+# Neo4j数据库配置
+NEO4J_URI='bolt://xxxxx:xxx'
+NEO4J_USERNAME='xxxx'
+NEO4J_PASSWORD='xxxx'
 
 # LLM模型配置
 OPENAI_BASE_URL=xxxx
@@ -80,7 +85,7 @@ LANGSMITH_PROJECT=xxxx
 
 生成测试数据，会在指定数据库内创建一个名为`data_test`的表。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
 ```
-python data_create/data_test.py
+python database\mysql_setup\data_test.py
 ```
 
 测试agent
