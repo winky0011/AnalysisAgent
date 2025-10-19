@@ -24,8 +24,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
   - ~~Text2SQL Agent~~
   - 基于SFT训练的Text2SQL模型
 - 报告生成节点模型的训练（生成更有建设性、更规范的报告）
-- 长期记忆的优化，借助外挂数据库实现持久化存储（借助Mem0）
-- agent之间的通信可以考虑使用 [A2A](https://github.com/a2aproject/a2a-python)
+- 记忆的实现，借助外挂数据库实现持久化存储，以及[mem路由](https://arxiv.org/abs/2508.04903)
 
 
 涉及的技术栈/框架：LangGraph、LangMem、LangSmith、text2sql、SFT、neo4j、RAG、MCP
