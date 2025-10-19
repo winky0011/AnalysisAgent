@@ -3,7 +3,7 @@ from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 
-import os, csv
+import os, csv, time
 from typing import Dict, List, Optional, Any, Annotated
 from io import StringIO
 import mysql.connector
@@ -11,6 +11,7 @@ from mysql.connector import Error
 from dotenv import load_dotenv
 
 from memory_state import CustomState
+from .tool_utils import *
 
 load_dotenv()
 
@@ -32,153 +33,6 @@ def _connect() -> Optional[mysql.connector.MySQLConnection]:
 def _disconnect(conn):
     if conn and conn.is_connected():
         conn.close()
-
-# ------------------------------
-# 查询data_test表并返回内存CSV
-# ------------------------------
-@tool
-def query_data_test(state: Annotated[CustomState, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId]) -> Dict[str, Any]:
-    """
-    查询MySQL中的data_test表，返回所有字段的数据，结果以CSV格式返回。
-    此工具不接受用户输入SQL，防止注入和误操作。
-    
-    返回:
-        包含查询状态、CSV数据、记录数的字典
-    """
-    query = """
-        SELECT *
-        FROM data_test
-    """
-    
-    try:
-        conn = _connect()
-        if not conn:
-            return {"status": "error", "message": "数据库连接失败", "csv_data": "", "row_count": 0}
-
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(query)
-        records = cursor.fetchall()
-        columns = cursor.column_names if records else []
-
-        # 内存中生成CSV
-        csv_buffer = StringIO()
-        writer = csv.DictWriter(csv_buffer, fieldnames=columns)
-        writer.writeheader()
-        writer.writerows(records)
-        csv_buffer.seek(0)
-
-        return Command(update={
-            'csv_buffer': csv_buffer,
-            'messages': [
-                ToolMessage(
-                    content=f"查询成功，获取{len(records)}条记录",
-                    status="success",  # 额外元数据：工具调用状态
-                    columns=list(columns),
-                    row_count=len(records),
-                    tool_call_id=tool_call_id
-                )
-            ]
-        })
-    except Error as e:
-        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "csv_data": "", "row_count": 0}
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            _disconnect(conn)  # 传入 conn
-
-
-# ------------------------------
-# 获取MySQL中data_test表的所有字段名
-# ------------------------------
-@tool
-def get_data_test_columns() -> Dict[str, List[str]]:
-    """
-    获取MySQL中data_test表的所有字段名
-    返回:
-        包含字段名列表的字典
-    """
-    query = "SHOW COLUMNS FROM data_test"
-    conn = _connect()
-    if not conn:
-        return {"status": "error", "message": "数据库连接失败", "columns": []}
-    
-    try:
-        cursor = conn.cursor()
-        cursor.execute(query)
-        columns = [row[0] for row in cursor.fetchall()]
-        return {"status": "success", "message": "获取字段成功", "columns": columns}
-    except Error as e:
-        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "columns": []}
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            _disconnect(conn)  # 传入 conn
-
-
-# ------------------------------
-# 按日期范围条件取data_test数据
-# ------------------------------
-@tool
-def filter_data_by_date_range(state: Annotated[CustomState, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId], start_date: str, end_date: str, stage: str = "t1") -> Dict[str, str]:
-    """
-    查询MySQL中的data_test表，按日期范围快速过滤t1/t2阶段的计划时间数据（无需手动写SQL）
-    参数:
-        start_date: 开始日期（格式YYYY-MM-DD，如"2024-01-01"）
-        end_date: 结束日期（格式YYYY-MM-DD，如"2024-01-31"）
-        stage: 阶段（可选"t1"或"t2"，对应t1_start_schedule/t2_start_schedule字段）
-    返回:
-        包含CSV结果的字典
-    """
-    if stage not in ["t1", "t2"]:
-        return {"status": "error", "message": "stage必须为't1'或't2'", "csv_data": "", "row_count": 0}
-    
-    # 构建安全的日期过滤SQL（避免注入风险）
-    query = f"""
-        SELECT * FROM data_test
-        WHERE {stage}_start_schedule BETWEEN %s AND %s
-        OR {stage}_end_schedule BETWEEN %s AND %s
-    """
-    # 调用查询工具
-    conn = _connect()
-    if not conn:
-        return {"status": "error", "message": "数据库连接失败", "csv_data": "", "row_count": 0}
-    
-    try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, [f"{start_date} 00:00:00", f"{end_date} 23:59:59", 
-                                f"{start_date} 00:00:00", f"{end_date} 23:59:59"])
-        records = cursor.fetchall()
-        columns = cursor.column_names if records else []
-
-        # 内存CSV生成
-        csv_buffer = StringIO()
-        writer = csv.DictWriter(csv_buffer, fieldnames=columns)
-        writer.writeheader()
-        writer.writerows(records)
-        csv_buffer.seek(0)
-
-        return Command(update={
-            'csv_buffer': csv_buffer,
-            'messages': [
-                ToolMessage(
-                    content=f"筛选{stage}阶段{start_date}至{end_date}的数据，共{len(records)}条",
-                    status="success",  # 额外元数据：工具调用状态
-                    csv_data=csv_buffer.getvalue(),
-                    row_count=len(records),
-                    tool_call_id=tool_call_id
-                )
-            ]
-        })
-    except Error as e:
-        return {"status": "error", "message": f"筛选错误: {str(e)}", "csv_data": "", "row_count": 0}
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            _disconnect(conn)  # 传入 conn
-
 
 # ------------------------------
 # 获取当前数据库中有什么表
@@ -203,11 +57,10 @@ def get_mysql_tables() -> Dict[str, List[str]]:
     except Error as e:
         return {"status": "error", "message": f"SQL执行错误: {str(e)}", "tables": []}
     finally:
-        if cursor:
+        if 'cursor' in locals() and cursor:
             cursor.close()
         if conn:
-            _disconnect(conn)  # 传入 conn
-
+            _disconnect(conn)
 
 # ------------------------------
 # 获取指定表的字段
@@ -234,78 +87,191 @@ def get_table_columns(table_name: str) -> Dict[str, List[str]]:
     except Error as e:
         return {"status": "error", "message": f"SQL执行错误: {str(e)}", "columns": []}
     finally:
-        if cursor:
+        if 'cursor' in locals() and cursor:
             cursor.close()
         if conn:
-            _disconnect(conn)  # 传入 conn
+            _disconnect(conn)
 
 
 # ------------------------------
-# 执行sql查询语句，并且查询结果以csv样式暂存在内存中
+# 查询指定表并写入本地CSV，state存路径
+# ------------------------------
+@tool
+def query_data(table_name: str, state: Annotated[CustomState, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId]) -> Dict[str, Any]:
+    """
+    查询MySQL中指定表的所有数据，并将结果写入本地CSV文件
+    参数:
+        table_name: 表名
+    返回:
+        包含CSV文件路径、记录数和字段名的字典
+    """
+    query = f"SELECT * FROM {table_name}"
+    
+    try:
+        conn = _connect()
+        if not conn:
+            return {"status": "error", "message": "数据库连接失败", "csv_path": "", "row_count": 0}
+
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        records = cursor.fetchall()
+        columns = cursor.column_names if records else []
+        row_count = len(records)
+
+        # 1. 生成本地CSV文件
+        if row_count > 0:
+            # 生成时间命名的文件名
+            csv_filename = generate_csv_filename(table_name)
+            # 获取绝对路径
+            csv_abs_path = get_absolute_csv_path(csv_filename)
+            # 写入本地文件
+            with open(csv_abs_path, "w", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=columns)
+                writer.writeheader()
+                writer.writerows(records)
+        else:
+            csv_abs_path = ""
+
+        # 2. state中存储文件路径和元数据
+        return Command(update={
+            'csv_local_path': csv_abs_path,  # 核心：存储本地绝对路径
+            'csv_meta': {  # 存储元数据，方便Agent快速了解文件信息
+                'table_name': table_name,
+                'row_count': row_count,
+                'columns': list(columns),
+                'create_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            },
+            'messages': [
+                ToolMessage(
+                    content=f"查询成功：{table_name}表{row_count}条记录，已保存至本地：{csv_abs_path}",
+                    status="success",
+                    csv_path=csv_abs_path,
+                    csv_meta=state["csv_meta"],
+                    tool_call_id=tool_call_id
+                )
+            ]
+        })
+    except Error as e:
+        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "csv_path": "", "row_count": 0}
+    finally:
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if conn:
+            _disconnect(conn)
+
+
+# ------------------------------
+# 执行SQL查询语句，结果写入本地CSV文件，state存路径
 # ------------------------------
 @tool
 def execute_sql_query(state: Annotated[CustomState, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId], query: str) -> Dict[str, Any]:
     """
-    执行MySQL查询语句，将结果以CSV格式暂存在内存中，如果后续涉及到对该数据的操作，请务必先将数据加载到内存中。
+    执行MySQL查询语句，将结果写入本地CSV文件，state中存储文件路径
     参数:
-        query: 要执行的SQL查询语句
+        query: 要执行的SQL查询语句（仅支持SELECT操作）
     返回:
-        包含执行状态、消息、暂存的CSV数据和行数的字典
+        包含执行状态、文件路径、记录数和元数据的字典
     """
-    # 检查sql语句是否包含危险操作
-    if any(keyword in query.lower() for keyword in ["delete", "drop", "truncate"]):
-        return {"status": "error", "message": "查询语句包含危险操作，已拒绝执行", "csv_data": "", "row_count": 0}
+    # 危险操作防护
+    if any(keyword in query.lower() for keyword in ["delete", "drop", "truncate", "update", "insert"]):
+        return {
+            "status": "error", 
+            "message": "查询语句包含危险操作（仅允许SELECT），已拒绝执行", 
+            "csv_path": "", 
+            "row_count": 0, 
+            "csv_meta": {}
+        }
 
-    # 是否sql注入风险
-    if any(char in query for char in [";", "--", "#"]):
-        return {"status": "error", "message": "查询语句包含潜在的SQL注入风险，已拒绝执行", "csv_data": "", "row_count": 0}
+    # SQL注入风险防护
+    if any(char in query for char in [";", "--", "#", "/*", "*/"]):
+        return {
+            "status": "error", 
+            "message": "查询语句包含潜在的SQL注入风险，已拒绝执行", 
+            "csv_path": "", 
+            "row_count": 0, 
+            "csv_meta": {}
+        }
     
-    # sql只允许查询操作
+    # 仅允许SELECT查询
     if not query.strip().lower().startswith("select"):
-        return {"status": "error", "message": "查询语句必须以SELECT开头", "csv_data": "", "row_count": 0}
+        return {
+            "status": "error", 
+            "message": "查询语句必须以SELECT开头", 
+            "csv_path": "", 
+            "row_count": 0, 
+            "csv_meta": {}
+        }
 
     conn = _connect()
     if not conn:
-        return {"status": "error", "message": "数据库连接失败", "csv_data": "", "row_count": 0}
+        return {
+            "status": "error", 
+            "message": "数据库连接失败", 
+            "csv_path": "", 
+            "row_count": 0, 
+            "csv_meta": {}
+        }
     
     try:
         cursor = conn.cursor(dictionary=True)
         cursor.execute(query)
         records = cursor.fetchall()
         columns = cursor.column_names if records else []
+        row_count = len(records)
 
-        # 内存CSV生成
-        csv_buffer = StringIO()
-        writer = csv.DictWriter(csv_buffer, fieldnames=columns)
-        writer.writeheader()
-        writer.writerows(records)
-        csv_buffer.seek(0)
+        # 生成基于查询哈希的文件名（避免重复，同时区分不同查询）
+        import hashlib
+        query_hash = hashlib.md5(query.encode()).hexdigest()[:8]  # 取哈希前8位
+        csv_filename = f"sql_query_{query_hash}_{time.strftime('%Y%m%d%H%M%S')}.csv"
+        csv_abs_path = get_absolute_csv_path(csv_filename)
 
+        # 写入本地CSV文件（即使记录数为0，也生成空文件方便追踪）
+        with open(csv_abs_path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=columns)
+            writer.writeheader()
+            writer.writerows(records)
+
+        # 构建元数据（包含查询语句摘要，方便追溯）
+        csv_meta = {
+            "query": query[:200] + "..." if len(query) > 200 else query,  # 截断长查询
+            "row_count": row_count,
+            "columns": list(columns),
+            "create_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            "version": state.get("csv_meta", {}).get("version", 0) + 1  # 版本号自增
+        }
+
+        # 更新state：存储文件路径和元数据
         return Command(update={
-            'csv_buffer': csv_buffer,
+            'csv_local_path': csv_abs_path,
+            'csv_meta': csv_meta,
             'messages': [
                 ToolMessage(
-                    content=f"查询成功，获取{len(records)}条记录",
-                    status="success",  # 额外元数据：工具调用状态
-                    columns=list(columns),
-                    row_count=len(records),
+                    content=f"SQL查询成功，{row_count}条记录已保存至本地：{csv_abs_path}",
+                    status="success",
+                    csv_path=csv_abs_path,
+                    csv_meta=csv_meta,
                     tool_call_id=tool_call_id
                 )
             ]
         })
     except Error as e:
-        return {"status": "error", "message": f"SQL执行错误: {str(e)}", "csv_data": "", "row_count": 0}
+        return {
+            "status": "error", 
+            "message": f"SQL执行错误: {str(e)}", 
+            "csv_path": "", 
+            "row_count": 0, 
+            "csv_meta": {}
+        }
     finally:
-        if cursor:
+        if 'cursor' in locals() and cursor:
             cursor.close()
         if conn:
-            _disconnect(conn)  # 传入 conn
-
+            _disconnect(conn)
 
 def get_mysql_tools() -> List[BaseTool]:
     return [
-        query_data_test, 
-        get_data_test_columns, 
-        filter_data_by_date_range,
+        query_data,
+        get_mysql_tables,
+        get_table_columns,
         execute_sql_query
     ]
