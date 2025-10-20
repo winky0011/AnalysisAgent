@@ -7,17 +7,12 @@ import asyncio
 import json
 
 SERVER_CONFIGS = {
-    "a_share_mcp_v2": {  
-        "command": "uv", 
-        "args": [
-            "run",  
-            "--directory",
-            r"D:\\TestCode\\Finance\\a-share-mcp-is-just-i-need",  # 修改为a-share-mcp-is-just-i-need服务器项目路径
-            "python",  #
-            "mcp_server.py"  # MCP服务器脚本
-        ],
-        "transport": "stdio",
+  "mcpServers": {
+    "mcp-server-chart": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
     }
+  }
 }
 
 _mcp_client_instance = None

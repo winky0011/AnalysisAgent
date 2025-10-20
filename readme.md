@@ -12,13 +12,13 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - ~~从数据库中提取数据进行分析（目前只支持mysql数据库，且sql写死了）；~~
 - ~~长期记忆的初步实现，存储用户的查询历史和分析结果到内存中；~~
 - 采用 [`Multi-agent supervisor`](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor) 架构：
-  - [SQLAgenty](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/) 以及 StatisticsAgent 的初步实现，emmms，目前需求过于简单，sql agent即可实现，不需要调用StatisticsAgent。
+  - [SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/) 以及 Statistics Agent 的初步实现，emmms，目前需求过于简单，sql agent即可实现，不需要调用StatisticsAgent。
   - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
-  - agent之间的转化是基于handoff机制，信息的传递基于send原语
+  - agent之间的转换是基于handoff机制，信息的传递基于send原语
 
 
 待实现：
-- <u>外部 MCP 工具的接入（初步设想是引入echart工具）+ 报告生成</u>
+- <u>外部 MCP 工具的接入（初步设想是引入[Echart工具](https://github.com/antvis/mcp-server-chart)）+ 报告生成</u>
 - 增加外挂知识库，用于辅助情况的判断以及报告的生成（类似于：如何提高管理效率、优化管理措施等信息）
 - Text2SQL 直接生成查询语句，目前有两种待实现的思路：
   - ~~Text2SQL Agent~~
@@ -44,6 +44,9 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 
 
 ## 使用方法
+
+### 环境准备
+
 创建环境，安装对应的依赖
 ```
 conda create -n analysisagent python=3.12
@@ -51,12 +54,12 @@ conda activate analysisagent
 pip install -r requirements.txt
 ```
 
-下载embedding模型到本地cache目录下，并且在.env文件下配置对应信息
+下载embedding模型到本地cache目录下
 ```
 python -c "from sentence_transformers import SentenceTransformer; model = SentenceTransformer('all-MiniLM-L6-v2'); model.save('cache/all-MiniLM-L6-v2')"
 ```
 
-新建.env文件，设置对应变量
+新建.env文件，设置对应变量，详情可见 `.env.example` 文件。
 ```
 # MySQL数据库配置，建议用户权限不要太高！！！
 MYSQL_HOST=xxxx
@@ -87,11 +90,21 @@ LANGSMITH_API_KEY=xxxx
 LANGSMITH_PROJECT=xxxx
 ```
 
-生成测试数据，具体表格设计可以查看[readme.md](database/mysql_setup/readme.md)。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
+生成 MySQL 测试数据，具体表格设计可以查看[readme.md](database/mysql_setup/readme.md)。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
 ```
 python database\mysql_setup\gen_data.py
 ```
 
+生成 Neo4j 测试数据，将需要解析的文档存在 `database/neo4j_setup/files` 文件下，修改 Neo4j 的设置文件 `database/settings.py`，执行以下命令（**此过程可能会消耗大量token！！！**）：
+```
+python database\neo4j_setup\build_database.py
+```
+
+MCP 服务端的配置，这里使用到的是 [antvis/mcp-server-chart](https://github.com/antvis/mcp-server-chart)，可以根据 [readme.md](https://github.com/antvis/mcp-server-chart/blob/main/README.md) 进行配置。
+启动成功后，修改 `custom_tools\chart_tools.py` 中的 `SERVER_CONFIGS` 变量。
+
+
+### 运行agent
 测试agent
 ```
 python main.py
