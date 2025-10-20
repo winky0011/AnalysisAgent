@@ -8,7 +8,7 @@ neo4j的代码源于：https://github.com/1517005260/graph-rag-agent
 ```
 database/
 ├── mysql/
-│   └── data_test.py       # MySQL数据库表创建和测试数据填充脚本
+│   └── gen_data.py        # MySQL数据库表创建和测试数据填充脚本
 ├── neo4j/
 │   ├── build/             # Neo4j图谱构建的核心逻辑
 │   ├── community/         # build的工具模块，社区检测与摘要模块

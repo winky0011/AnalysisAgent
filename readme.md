@@ -87,9 +87,9 @@ LANGSMITH_API_KEY=xxxx
 LANGSMITH_PROJECT=xxxx
 ```
 
-生成测试数据，会在指定数据库内创建一个名为`data_test`的表。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
+生成测试数据，具体表格设计可以查看[readme.md](database/mysql_setup/readme.md)。在测试数据生成结束后，**十分建议**将mysql数据库配置中的账号设置为只读模式，避免 Agent 执行危险操作。
 ```
-python database\mysql_setup\data_test.py
+python database\mysql_setup\gen_data.py
 ```
 
 测试agent
