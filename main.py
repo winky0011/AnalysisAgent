@@ -1,5 +1,5 @@
 from utils import pretty_print_messages
-from supervisor import SupervisorAgent
+from agents.supervisor import SupervisorAgent
 
 if __name__ == "__main__":
     supervisor = SupervisorAgent().get_agent()

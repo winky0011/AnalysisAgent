@@ -7,7 +7,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 
-from get_models import get_llm_model, get_embeddings_model
+from common.get_models import get_llm_model, get_embeddings_model
 from dataset_prompt import (
     system_template_build_graph,
     human_template_build_graph
@@ -21,7 +21,7 @@ from settings import (
     OVERLAP,
     MAX_WORKERS, BATCH_SIZE,
 )
-from neo4jdb import get_db_manager
+from common.neo4jdb import get_db_manager
 from processor.document_processor import DocumentProcessor
 from graph import GraphStructureBuilder
 from graph import EntityRelationExtractor

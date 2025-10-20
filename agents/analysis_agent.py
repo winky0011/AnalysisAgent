@@ -10,10 +10,9 @@ from langgraph.store.memory import InMemoryStore
 from langchain.embeddings import init_embeddings
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-# 替换原 MySQL 自定义工具为 Neo4j 和报告生成相关工具
 from custom_tools import get_neo4j_tools, get_report_generation_tools
-from memory_state import CustomState
-from prompt import neo4j_analysis_prompt  # 新增的 Neo4j 分析提示词
+from common.memory_state import CustomState
+from common.prompt import neo4j_analysis_prompt  # 新增的 Neo4j 分析提示词
 
 load_dotenv()
 

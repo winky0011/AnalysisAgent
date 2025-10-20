@@ -2,7 +2,7 @@ import time
 from typing import Dict, List, Any, Tuple
 from rich.console import Console
 from rich.table import Table
-from neo4jdb import get_db_manager
+from common.neo4jdb import get_db_manager
 
 class GraphConsistencyValidator:
     """

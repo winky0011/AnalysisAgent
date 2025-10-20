@@ -4,8 +4,8 @@ from typing import List, Dict, Any, Optional
 
 from rich.console import Console
 
-from get_models import get_embeddings_model
-from neo4jdb import get_db_manager
+from common.get_models import get_embeddings_model
+from common.neo4jdb import get_db_manager
 from settings import EMBEDDING_BATCH_SIZE, MAX_WORKERS as DEFAULT_MAX_WORKERS
 
 class EmbeddingManager:

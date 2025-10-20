@@ -11,7 +11,7 @@ from langchain.prompts import (
     SystemMessagePromptTemplate
 )
 
-from get_models import get_llm_model
+from common.get_models import get_llm_model
 from dataset_prompt import system_template_build_index, user_template_build_index
 from settings import ENTITY_BATCH_SIZE, MAX_WORKERS as DEFAULT_MAX_WORKERS
 from graph.core import connection_manager, timer, get_performance_stats, print_performance_stats

@@ -16,7 +16,7 @@ from community import CommunityDetectorFactory
 from community import CommunitySummarizerFactory
 from graphdatascience import GraphDataScience
 
-from neo4jdb import get_db_manager
+from common.neo4jdb import get_db_manager
 from settings import MAX_WORKERS, ENTITY_BATCH_SIZE, GDS_MEMORY_LIMIT
 
 import shutup

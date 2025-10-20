@@ -10,7 +10,7 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-from memory_state import CustomState
+from common.memory_state import CustomState
 from .tool_utils import *
 
 load_dotenv()

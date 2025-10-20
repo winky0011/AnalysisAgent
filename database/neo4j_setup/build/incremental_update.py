@@ -12,7 +12,7 @@ from graph.graph_consistency_validator import GraphConsistencyValidator
 from build.incremental.manual_edit_manager import ManualEditManager
 from graph.indexing.embedding_manager import EmbeddingManager
 from community import CommunityDetectorFactory, CommunitySummarizerFactory
-from neo4jdb import get_db_manager
+from common.neo4jdb import get_db_manager
 from settings import FILES_DIR, community_algorithm, MAX_WORKERS, BATCH_SIZE
 from build.incremental.incremental_update_scheduler import IncrementalUpdateScheduler
 

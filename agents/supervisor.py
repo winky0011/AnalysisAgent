@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 import os
 from typing import Any, List, Annotated
 
-from prompt import supervisor_prompt
-from nodes import Text2SQLAgent, StatisticsAgent
-from memory_state import CustomState
+from common.prompt import supervisor_prompt
+from agents import Text2SQLAgent, StatisticsAgent
+from common.memory_state import CustomState
 
 load_dotenv()
 

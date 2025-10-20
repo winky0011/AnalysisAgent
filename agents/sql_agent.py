@@ -5,27 +5,41 @@ from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langgraph.prebuilt import create_react_agent
 
+from langchain_community.utilities import SQLDatabase
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langgraph.store.memory import InMemoryStore
 from langchain.embeddings import init_embeddings
-from langmem import create_memory_store_manager, ReflectionExecutor
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from custom_tools import get_csv_tools, get_math_tools
-from prompt import statistic_prompt
-from memory_state import CustomState, AnalysisMemory
+from custom_tools import get_mysql_tools
+from common.memory_state import CustomState
+from common.prompt import sql_prompt
 
 load_dotenv()
 
-class StatisticsAgent:
+class Text2SQLAgent:
     """
-    拆解问题，依据问题链路对csv进行操作，生成统计结果
+    负责根据用户输入的自然语言，生成对应的 SQL 查询语句，并将对应sql查询结果以csv样式保存。
     """
 
     def __init__(self) -> None:
+        self.db = self._init_db()
         self.llm = self._init_llm()
         self.store = self._init_memory_store()
         self.tools = self._init_tools()
         self.agent = self._init_agent()
+
+    def _init_db(self):
+        """初始化数据库连接"""
+        mysql_host = os.getenv('MYSQL_HOST', 'localhost')
+        mysql_user = os.getenv('MYSQL_USER')
+        mysql_password = os.getenv('MYSQL_PASSWORD')
+        mysql_database = os.getenv('MYSQL_DATABASE')
+        mysql_port = os.getenv('MYSQL_PORT', '3306')  # 默认 3306，用字符串避免类型问题
+
+        engine_url = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
+
+        return SQLDatabase.from_uri(engine_url)
 
     def _init_memory_store(self):
         """初始化长期记忆存储"""
@@ -49,30 +63,15 @@ class StatisticsAgent:
             }
         )
 
-    def _init_memory_manager(self):
-        """初始化记忆管理器"""
-        return create_memory_store_manager(
-            self.llm,
-            schemas=[AnalysisMemory],
-            namespace=("analysis_memories", "{langgraph_user_id}"),
-            store=self.store,
-            # instructions=memory_prompt,
-        )
-
-    def _init_reflection_executor(self):
-        """初始化后台反射执行器"""
-        return ReflectionExecutor(
-            self.memory_manager,
-            store=self.store
-        )
 
     def _init_tools(self):
         """初始化工具集"""
-        tools = get_math_tools()
-        tools.extend(get_csv_tools())  # 自定义工具
+        toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
+        tools = toolkit.get_tools()   # langgraph中提供的工具
+        tools.extend(get_mysql_tools())  # 自定义工具
         tools.extend([
-            create_manage_memory_tool(namespace=("statistic_memories", "{langgraph_user_id}")),
-            create_search_memory_tool(namespace=("statistic_memories", "{langgraph_user_id}")),
+            create_manage_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
+            create_search_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
         ])
         return tools
 
@@ -86,12 +85,21 @@ class StatisticsAgent:
         )
 
     def _init_agent(self) -> Any:
+        """
+        构建并返回 ReAct 智能体图（Agent Graph）。
+        
+        每次调用都会创建一个新的智能体实例，确保状态隔离。
+        """
+        system_prompt = sql_prompt.format(
+                            dialect=self.db.dialect,  # 自动填充数据库类型
+                            top_k=5  # 默认返回前 5 条结果
+                        )
         return create_react_agent(
             model=self.llm,
             tools=self.tools,
-            prompt=statistic_prompt,
+            prompt=system_prompt,
             # state_schema=CustomState,
-            name="statistic_agent",
+            name="text2sql_agent",
             store=self.store,
         )
     

@@ -9,7 +9,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from graph import ChunkIndexManager
-from neo4jdb import get_db_manager
+from common.neo4jdb import get_db_manager
 from settings import MAX_WORKERS, CHUNK_BATCH_SIZE
 
 import shutup
