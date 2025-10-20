@@ -39,6 +39,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://github.com/24mlight/a-share-mcp-is-just-i-need
 - https://github.com/a2aproject/a2a-python
 - https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
+- https://github.com/anthropics/skills
 
 
 ## 2. 使用方法
@@ -115,10 +116,22 @@ python build_database.py --incremental   # 增量插入
 #### 2.1.3 启动 MCP 服务端以及配置
 
 MCP 服务端的配置，这里使用到的是 [antvis/mcp-server-chart](https://github.com/antvis/mcp-server-chart)，可以根据 [readme.md](https://github.com/antvis/mcp-server-chart/blob/main/README.md) 进行配置。
-启动成功后，修改 `custom_tools\chart_tools.py` 中的 `SERVER_CONFIGS` 变量。
+启动成功后，修改 `custom_tools\chart_tools.py` 中的 `SERVER_CONFIGS` 变量：
+```
+SERVER_CONFIGS = {
+    "mcp-server-chart": {  
+        "command": "xxx", 
+        "args": [
+            "xxxx"
+        ],
+        "transport": xxx,
+    }
+}
+```
 
 
 ### 2.2 运行agent
+
 测试agent
 ```
 python main.py

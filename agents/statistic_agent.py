@@ -90,7 +90,6 @@ class StatisticsAgent:
             model=self.llm,
             tools=self.tools,
             prompt=statistic_prompt,
-            # state_schema=CustomState,
             name="statistic_agent",
             store=self.store,
         )
