@@ -112,7 +112,7 @@ class SupervisorAgent:
 
 # 测试
 if __name__ == "__main__":
-    from utils import pretty_print_messages
+    from common.utils import pretty_print_messages
     supervisor = SupervisorAgent().get_agent()
     for chunk in supervisor.stream(
         {

@@ -5,29 +5,9 @@ from langchain_core.messages import ToolMessage
 import csv
 import os
 from typing import Dict, Any, Annotated, List
-from io import StringIO
-from pathlib import Path
 
-from common.memory_state import CustomState  # 需确保含 csv_local_path: str、csv_meta: dict（元数据）
+from common.memory_state import CustomState
 from .tool_utils import parse_datetime
-
-
-# ------------------------------
-# 通用工具：从本地CSV文件读取数据（内部复用）
-# ------------------------------
-def _read_local_csv(csv_path: str) -> tuple[list[dict], list[str]]:
-    """
-    内部工具函数：从本地CSV文件读取所有行和列名
-    返回：(所有行数据列表, 列名列表)
-    """
-    if not csv_path or not os.path.exists(csv_path):
-        raise FileNotFoundError(f"本地CSV文件不存在：{csv_path}")
-    
-    with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        columns = reader.fieldnames or []
-        rows = list(reader)
-    return rows, columns
 
 
 # ------------------------------

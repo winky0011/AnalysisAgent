@@ -1,4 +1,4 @@
-from utils import pretty_print_messages
+from common.utils import pretty_print_messages
 from agents.supervisor import SupervisorAgent
 
 if __name__ == "__main__":
