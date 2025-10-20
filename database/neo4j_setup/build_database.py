@@ -10,7 +10,7 @@ def setup_path():
     # 获取当前脚本所在目录 (database/neo4j_setup)
     neo4j_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # 项目根目录 (MCP)
+    # 项目根目录
     project_root = os.path.dirname(neo4j_dir)
     
     # build 目录

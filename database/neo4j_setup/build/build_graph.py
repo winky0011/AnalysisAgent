@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from get_models import get_llm_model, get_embeddings_model
-from prompt import (
+from dataset_prompt import (
     system_template_build_graph,
     human_template_build_graph
 )

@@ -15,7 +15,7 @@ from rich.console import Console
 from rich.table import Table
 
 from get_models import get_llm_model
-from prompt import system_template_build_graph, human_template_build_graph
+from dataset_prompt import system_template_build_graph, human_template_build_graph
 from settings import entity_types, relationship_types, CHUNK_SIZE, OVERLAP, MAX_WORKERS, BATCH_SIZE
 from processor.document_processor import DocumentProcessor
 from graph import EntityRelationExtractor, GraphWriter, GraphStructureBuilder
@@ -34,7 +34,7 @@ class IncrementalGraphUpdater:
     4. 保护现有图谱的完整性
     """
     
-    def __init__(self, files_dir: str, registry_path: str = "./file_registry.json"):
+    def __init__(self, files_dir: str, registry_path: str = "./cache/file_registry.json"):
         """
         初始化增量图谱更新器
         

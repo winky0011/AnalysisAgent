@@ -45,21 +45,11 @@ pip install Faker mysql-connector-python
 
 #### c. 执行脚本
 
-进入 `mysql` 目录，并运行 `seed_database.py` 脚本来创建表和填充数据：
+运行 `gen_data.py` 脚本来创建表和填充数据：
 
 ```bash
-cd database/mysql
-python seed_database.py --seed
+python database\\mysql_setup\\gen_data.py
 ```
-
-如果是通过uv管理环境，需要先激活环境，再运行脚本：
-
-```bash
-.venv\Scripts\activate.bat
-uv run python database/mysql/seed_database.py --seed
-```
-
-脚本将自动创建 `users` 和 `documents` 表，并向其中填充模拟数据。
 
 
 ## 2. Neo4j 知识图谱

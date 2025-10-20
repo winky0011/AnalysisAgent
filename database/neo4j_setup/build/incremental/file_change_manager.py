@@ -16,7 +16,7 @@ class FileChangeManager:
     3. 更新文件注册表
     """
     
-    def __init__(self, files_dir: str, registry_path: str = "./file_registry.json"):
+    def __init__(self, files_dir: str, registry_path: str = "./cache/file_registry.json"):
         """
         初始化文件变更管理器
         

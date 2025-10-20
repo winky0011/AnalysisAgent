@@ -95,10 +95,19 @@ LANGSMITH_PROJECT=xxxx
 python database\mysql_setup\gen_data.py
 ```
 
-生成 Neo4j 测试数据，将需要解析的文档存在 `database/neo4j_setup/files` 文件下，修改 Neo4j 的设置文件 `database/settings.py`，执行以下命令（**此过程可能会消耗大量token！！！**）：
+生成 Neo4j 测试数据，将需要解析的文档存在 `database/neo4j_setup/files` 文件下，修改 Neo4j 的设置文件 `database/settings.py`，主要修改以下参数，其他参数设置按需修改：
+- theme
+- entity_types
+- relationship_types
+
+执行以下命令，生成对应知识图谱（**此过程可能会消耗大量token！！！**）：
 ```
-python database\neo4j_setup\build_database.py
+cd database/neo4j_setup
+python build_database.py --build         # 完整构建知识图谱
+python build_database.py --incremental   # 增量插入
 ```
+
+注意：在执行任何数据库脚本之前，请确保目标数据库服务正在运行。
 
 MCP 服务端的配置，这里使用到的是 [antvis/mcp-server-chart](https://github.com/antvis/mcp-server-chart)，可以根据 [readme.md](https://github.com/antvis/mcp-server-chart/blob/main/README.md) 进行配置。
 启动成功后，修改 `custom_tools\chart_tools.py` 中的 `SERVER_CONFIGS` 变量。

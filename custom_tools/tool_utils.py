@@ -29,7 +29,7 @@ def parse_datetime(time_str: str) -> Optional[datetime]:
 # 本地CSV存储配置（可根据需求修改）
 # ------------------------------
 # 固定存储目录（建议用绝对路径）
-LOCAL_CSV_DIR = Path("./local_csv_cache")
+LOCAL_CSV_DIR = Path("./cache/local_csv_cache")
 # 确保目录存在，不存在则创建
 LOCAL_CSV_DIR.mkdir(exist_ok=True, parents=True)
 
