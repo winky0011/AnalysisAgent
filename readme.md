@@ -10,10 +10,10 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 
 目前已实现：
 - 采用 [`Multi-agent supervisor`](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor) 架构：
-  - [SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)、Statistics Agent 以及 Analysis Agent 的初步实现，对应功能见 [readme](agents\readme.md) ，emmm，目前需求过于简单，sql agent即可实现，不需要调用Statistics Agent。
+  - [SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)、Statistics Agent 以及 Analysis Agent 的初步实现，对应功能见 [readme](agents/readme.md) ，emmm，目前需求过于简单，sql agent即可实现，不需要调用Statistics Agent。
   - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
   - agent之间的转换是基于handoff机制，信息的传递基于send原语
-- Neo4j 知识图谱的构建
+- Neo4j 知识图谱的构建，向量检索的实现
 
 
 待实现：
@@ -37,8 +37,6 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://github.com/1517005260/graph-rag-agent
 - https://github.com/antvis/mcp-server-chart
 - https://github.com/24mlight/a-share-mcp-is-just-i-need
-- https://github.com/a2aproject/a2a-python
-- https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
 - https://github.com/anthropics/skills
 
 
