@@ -10,7 +10,7 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 
-from graph.core import retry, generate_hash
+from database.neo4j_setup.graph.core import retry, generate_hash
 from settings import MAX_WORKERS as DEFAULT_MAX_WORKERS, BATCH_SIZE as DEFAULT_BATCH_SIZE
 
 class EntityRelationExtractor:

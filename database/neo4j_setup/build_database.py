@@ -46,7 +46,7 @@ def main():
     args = parser.parse_args()
 
     if args.build:
-        from build.main import KnowledgeGraphProcessor
+        from .build.main import KnowledgeGraphProcessor
 
         print("开始知识图谱构建流程...")
         try:
@@ -59,7 +59,7 @@ def main():
             traceback.print_exc()
 
     elif args.incremental:
-        from build.incremental_update import IncrementalUpdateManager
+        from .build.incremental_update import IncrementalUpdateManager
         print("开始增量更新流程...")
         try:
             manager = IncrementalUpdateManager()

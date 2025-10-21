@@ -8,7 +8,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 
-from graph import ChunkIndexManager
+from database.neo4j_setup.graph import ChunkIndexManager
 from common.neo4jdb import get_db_manager
 from settings import MAX_WORKERS, CHUNK_BATCH_SIZE
 

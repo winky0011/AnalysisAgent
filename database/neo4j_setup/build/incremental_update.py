@@ -8,13 +8,13 @@ from rich.panel import Panel
 from rich.text import Text
 
 from incremental_graph_builder import IncrementalGraphUpdater
-from graph.graph_consistency_validator import GraphConsistencyValidator
-from build.incremental.manual_edit_manager import ManualEditManager
-from graph.indexing.embedding_manager import EmbeddingManager
-from community import CommunityDetectorFactory, CommunitySummarizerFactory
+from database.neo4j_setup.graph.graph_consistency_validator import GraphConsistencyValidator
+from database.neo4j_setup.build.incremental.manual_edit_manager import ManualEditManager
+from database.neo4j_setup.graph.indexing.embedding_manager import EmbeddingManager
+from database.neo4j_setup.community import CommunityDetectorFactory, CommunitySummarizerFactory
 from common.neo4jdb import get_db_manager
 from settings import FILES_DIR, community_algorithm, MAX_WORKERS, BATCH_SIZE
-from build.incremental.incremental_update_scheduler import IncrementalUpdateScheduler
+from database.neo4j_setup.build.incremental.incremental_update_scheduler import IncrementalUpdateScheduler
 
 class IncrementalUpdateManager:
     """

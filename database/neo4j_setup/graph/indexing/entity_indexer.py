@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from langchain_community.vectorstores import Neo4jVector
 
 from common.get_models import get_embeddings_model, get_llm_model
-from graph.core import BaseIndexer, connection_manager
+from database.neo4j_setup.graph.core import BaseIndexer, connection_manager
 from settings import ENTITY_BATCH_SIZE, MAX_WORKERS as DEFAULT_MAX_WORKERS
 
 class EntityIndexManager(BaseIndexer):

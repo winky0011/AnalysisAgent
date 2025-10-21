@@ -3,7 +3,7 @@ import concurrent.futures
 from typing import List, Dict
 from langchain_core.documents import Document
 
-from graph.core import connection_manager, generate_hash
+from database.neo4j_setup.graph.core import connection_manager, generate_hash
 from settings import BATCH_SIZE as DEFAULT_BATCH_SIZE
 from settings import MAX_WORKERS as DEFAULT_MAX_WORKERS
 

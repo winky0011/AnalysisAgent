@@ -5,7 +5,7 @@ from typing import Tuple, List, Any, Dict
 from dataclasses import dataclass
 
 from settings import similarity_threshold, BATCH_SIZE, GDS_MEMORY_LIMIT
-from graph.core import connection_manager, timer, get_performance_stats, print_performance_stats
+from database.neo4j_setup.graph.core import connection_manager, timer, get_performance_stats, print_performance_stats
 
 @dataclass
 class GDSConfig:

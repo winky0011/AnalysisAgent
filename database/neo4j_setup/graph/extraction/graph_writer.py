@@ -5,7 +5,7 @@ from langchain_community.graphs import Neo4jGraph
 from langchain_core.documents import Document
 from langchain_community.graphs.graph_document import GraphDocument, Node, Relationship
 
-from graph.core import connection_manager
+from database.neo4j_setup.graph.core import connection_manager
 from settings import BATCH_SIZE as DEFAULT_BATCH_SIZE, MAX_WORKERS as DEFAULT_MAX_WORKERS
 
 class GraphWriter:

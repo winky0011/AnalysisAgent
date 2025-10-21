@@ -17,11 +17,11 @@ from rich.table import Table
 from common.get_models import get_llm_model
 from dataset_prompt import system_template_build_graph, human_template_build_graph
 from settings import entity_types, relationship_types, CHUNK_SIZE, OVERLAP, MAX_WORKERS, BATCH_SIZE
-from processor.document_processor import DocumentProcessor
-from graph import EntityRelationExtractor, GraphWriter, GraphStructureBuilder
+from database.neo4j_setup.processor.document_processor import DocumentProcessor
+from database.neo4j_setup.graph import EntityRelationExtractor, GraphWriter, GraphStructureBuilder
 from common.neo4jdb import get_db_manager
-from build.incremental.file_change_manager import FileChangeManager
-from graph.indexing.embedding_manager import EmbeddingManager
+from database.neo4j_setup.build.incremental.file_change_manager import FileChangeManager
+from database.neo4j_setup.graph.indexing.embedding_manager import EmbeddingManager
 
 class IncrementalGraphUpdater:
     """

@@ -1,8 +1,8 @@
 import os
 from typing import List, Dict, Optional, Any
 
-from processor.file_reader import FileReader
-from processor.text_chunker import ChineseTextChunker
+from database.neo4j_setup.processor.file_reader import FileReader
+from database.neo4j_setup.processor.text_chunker import ChineseTextChunker
 from settings import FILES_DIR, CHUNK_SIZE, OVERLAP
 
 

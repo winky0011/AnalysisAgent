@@ -22,10 +22,10 @@ from settings import (
     MAX_WORKERS, BATCH_SIZE,
 )
 from common.neo4jdb import get_db_manager
-from processor.document_processor import DocumentProcessor
-from graph import GraphStructureBuilder
-from graph import EntityRelationExtractor
-from graph import GraphWriter
+from database.neo4j_setup.processor.document_processor import DocumentProcessor
+from database.neo4j_setup.graph import GraphStructureBuilder
+from database.neo4j_setup.graph import EntityRelationExtractor
+from database.neo4j_setup.graph import GraphWriter
 
 import shutup
 shutup.please()

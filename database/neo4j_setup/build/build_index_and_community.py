@@ -9,11 +9,11 @@ from rich.panel import Panel
 from rich.text import Text
 
 from settings import community_algorithm
-from graph import EntityIndexManager
-from graph import GDSConfig, SimilarEntityDetector
-from graph import EntityMerger
-from community import CommunityDetectorFactory
-from community import CommunitySummarizerFactory
+from database.neo4j_setup.graph import EntityIndexManager
+from database.neo4j_setup.graph import GDSConfig, SimilarEntityDetector
+from database.neo4j_setup.graph import EntityMerger
+from database.neo4j_setup.community import CommunityDetectorFactory
+from database.neo4j_setup.community import CommunitySummarizerFactory
 from graphdatascience import GraphDataScience
 
 from common.neo4jdb import get_db_manager

@@ -44,6 +44,8 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 
 ## 2. 使用方法
 
+> 如果使用 uv 管理环境，请在每条 python 执行命令前添加 `uv run` 前缀。
+
 ### 2.1 环境准备
 
 #### 2.1.1 配置
@@ -108,9 +110,8 @@ python database\mysql_setup\gen_data.py
 
 执行以下命令，生成对应知识图谱（**此过程可能会消耗大量token！！！**）：
 ```
-cd database/neo4j_setup
-python build_database.py --build         # 完整构建知识图谱
-python build_database.py --incremental   # 增量插入
+python -m database.neo4j_setup.build_database --build         # 完整构建知识图谱
+python -m database.neo4j_setup.build_database --incremental   # 增量插入
 ```
 
 #### 2.1.3 启动 MCP 服务端以及配置

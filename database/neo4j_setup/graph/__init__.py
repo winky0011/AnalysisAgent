@@ -1,4 +1,4 @@
-from graph.core import (
+from database.neo4j_setup.graph.core import (
     GraphConnectionManager, 
     connection_manager,
     BaseIndexer,
@@ -11,24 +11,24 @@ from graph.core import (
 )
 
 # Indexing
-from graph.indexing import (
+from database.neo4j_setup.graph.indexing import (
     ChunkIndexManager,
     EntityIndexManager
 )
 
 # Structure
-from graph.structure import (
+from database.neo4j_setup.graph.structure import (
     GraphStructureBuilder
 )
 
 # Extraction
-from graph.extraction import (
+from database.neo4j_setup.graph.extraction import (
     EntityRelationExtractor,
     GraphWriter
 )
 
 # Similar Entity
-from graph.processing import (
+from database.neo4j_setup.graph.processing import (
     EntityMerger,
     SimilarEntityDetector,
     GDSConfig

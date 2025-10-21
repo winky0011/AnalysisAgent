@@ -14,7 +14,7 @@ from langchain.prompts import (
 from common.get_models import get_llm_model
 from dataset_prompt import system_template_build_index, user_template_build_index
 from settings import ENTITY_BATCH_SIZE, MAX_WORKERS as DEFAULT_MAX_WORKERS
-from graph.core import connection_manager, timer, get_performance_stats, print_performance_stats
+from database.neo4j_setup.graph.core import connection_manager, timer, get_performance_stats, print_performance_stats
 
 class EntityMerger:
     """
