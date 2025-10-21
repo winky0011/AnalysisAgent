@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from langchain_core.tools import tool
 from common import get_neo4j_db_manager, get_embeddings_model
-import ast
+import re
 from langchain_community.vectorstores import Neo4jVector
 from typing import List, Callable, Any, Dict
 from tqdm import tqdm
@@ -116,14 +116,54 @@ def vector_search(
             "entities": []
         }
     
-    # 解析LangChain返回的文档内容
-    tmp = docs[0].page_content
-    result_data = ast.literal_eval(docs[0].page_content)
+    # 提取原始文本内容
+    content = docs[0].page_content.strip()
+    
+    # 定义解析函数：按标题分割内容
+    def parse_section(title, content):
+        # 用正则匹配标题后的内容（直到下一个标题或结束）
+        pattern = re.compile(rf"{title}:\s*(.*?)(?=\n\w+:|$)", re.DOTALL)
+        match = pattern.search(content)
+        if not match:
+            return []
+        # 提取列表项（去除"- "前缀和空行）
+        items = [
+            item.strip() 
+            for item in match.group(1).split("\n") 
+            if item.strip().startswith("- ")
+        ]
+        # 去除每个项的"- "前缀
+        return [item[2:].strip() for item in items if item[2:].strip()]
+    
+    # 解析Entities
+    entities = parse_section("Entities", content)
+    
+    # 解析Reports
+    reports = parse_section("Reports", content)
+    
+    # 解析Relationships（过滤None值）
+    relationships = [
+        rel for rel in parse_section("Relationships", content) 
+        if rel != "None"
+    ]
+    
+    # 解析Chunks（特殊处理：提取text字段）
+    chunks = []
+    chunks_match = re.search(r"Chunks:\s*(.*?)(?=\n\w+:|$)", content, re.DOTALL)
+    if chunks_match:
+        # 匹配每个chunk的text字段（处理多行字符串）
+        chunk_texts = re.findall(r"'text':\s*'(.*?)'", chunks_match.group(1), re.DOTALL)
+        # 清洗文本（去除换行符和多余空格）
+        chunks = [
+            text.replace("\n", " ").replace("  ", " ").strip() 
+            for text in chunk_texts
+        ]
+    
     return {
-        "chunks": [item["text"] for item in result_data["Chunks"]],  # 提取文本块内容
-        "reports": result_data["Reports"],  # 社区报告列表
-        "relationships": [rel["descriptionText"] for rel in result_data["Relationships"]],  # 关系描述
-        "entities": [ent["descriptionText"] for ent in result_data["Entities"]]  # 实体描述
+        "chunks": chunks,
+        "reports": reports,
+        "relationships": relationships,
+        "entities": entities
     }
 
 def map_reduce_search(

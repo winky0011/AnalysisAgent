@@ -52,6 +52,7 @@ class AnalysisAgent:
         """初始化工具集"""
         tools = []
         tools.extend(get_neo4j_tools())
+        tools.extend(get_report_tools())
         tools.extend([
             create_manage_memory_tool(namespace=("neo4j_analysis_memories", "{langgraph_user_id}")),
             create_search_memory_tool(namespace=("neo4j_analysis_memories", "{langgraph_user_id}")),
