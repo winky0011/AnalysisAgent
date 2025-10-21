@@ -11,7 +11,7 @@ import os
 from typing import Any, List, Annotated
 
 from common.prompt import supervisor_prompt
-from agents import Text2SQLAgent, StatisticsAgent
+from agents import Text2SQLAgent, StatisticsAgent, AnalysisAgent
 from common.memory_state import CustomState
 
 load_dotenv()
@@ -63,7 +63,12 @@ class SupervisorAgent:
             description="Assign task to a statistic agent.",
         )
 
-        return [assign_to_sql_agent, assign_to_statistic_agent]
+        assign_to_analysis_agent = self._create_handoff_tool(
+            agent_name="analysis_agent",
+            description="Assign task to a analysis agent.",
+        )
+
+        return [assign_to_sql_agent, assign_to_statistic_agent, assign_to_analysis_agent]
 
     def _init_llm(self):
         """初始化大语言模型"""
@@ -90,17 +95,20 @@ class SupervisorAgent:
 
         sql_agent = Text2SQLAgent().get_agent()
         statistic_agent = StatisticsAgent().get_agent()
+        analysis_agent = AnalysisAgent().get_agent()
 
         supervisor = (
             StateGraph(CustomState)
             # NOTE: `destinations` is only needed for visualization and doesn't affect runtime behavior
-            .add_node(supervisor_agent, destinations=("text2sql_agent", "statistic_agent", END))
+            .add_node(supervisor_agent, destinations=("text2sql_agent", "statistic_agent", "analysis_agent", END))
             .add_node(sql_agent)
             .add_node(statistic_agent)
+            .add_node(analysis_agent)
             .add_edge(START, "supervisor")
             # always return back to the supervisor
             .add_edge("text2sql_agent", "supervisor")
             .add_edge("statistic_agent", "supervisor")
+            .add_edge("analysis_agent", "supervisor")
             .add_edge("supervisor", END)
             .compile()
         )

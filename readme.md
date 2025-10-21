@@ -10,7 +10,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 
 目前已实现：
 - 采用 [`Multi-agent supervisor`](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor) 架构：
-  - [SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/) 以及 Statistics Agent 的初步实现，emmm，目前需求过于简单，sql agent即可实现，不需要调用Statistics Agent。
+  - [SQL Agent](https://langchain-ai.github.io/langgraph/tutorials/sql/sql-agent/)、Statistics Agent 以及 Analysis Agent 的初步实现，对应功能见 [readme](agents\readme.md) ，emmm，目前需求过于简单，sql agent即可实现，不需要调用Statistics Agent。
   - Supervisor Agent的实现，基于官网提供的教程：[multi_agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#research-agent)
   - agent之间的转换是基于handoff机制，信息的传递基于send原语
 - Neo4j 知识图谱的构建
@@ -113,6 +113,8 @@ python database\mysql_setup\gen_data.py
 python -m database.neo4j_setup.build_database --build         # 完整构建知识图谱
 python -m database.neo4j_setup.build_database --incremental   # 增量插入
 ```
+
+已插入的文件会记录在`cache\file_registry.json`文件中，用于增量插入时判断文件是否已存在。
 
 #### 2.1.3 启动 MCP 服务端以及配置
 

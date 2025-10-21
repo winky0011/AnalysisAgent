@@ -19,7 +19,7 @@ def vector_search(
     top_inside_rels: int = 10,
 ) -> Dict[str, Any]:
     """
-    向量检索工具函数：从Neo4j知识图谱中检索与查询相关的多维度信息
+    向量检索工具函数：在知识图谱中匹配最相似的实体、文本块等局部信息，适用于精准查询，例如查找与特定主题直接相关的信息、实体间的关系等。
     
     参数:
         query: 用户查询文本
@@ -182,7 +182,7 @@ def map_reduce_search(
     reduce_process_func: Callable = None
 ) -> str:
     """
-    基于Map-Reduce模式的知识图谱搜索工具函数
+    基于Map-Reduce 模式，在整个知识图谱的指定层级社区中进行全局扫描。适用于全局分析，例如对某一层级的所有社区进行汇总分析、跨社区的趋势总结等。
     
     参数:
         query: 用户查询语句
@@ -196,7 +196,7 @@ def map_reduce_search(
         reduce_process_func: 自定义Reduce处理函数（可选）
     
     返回:
-        str: 最终整合的答案
+        str: 对全局数据的整合性回答
     """
     # 获取数据库连接（复用单例的DBConnectionManager）
     db_manager = get_neo4j_db_manager()
