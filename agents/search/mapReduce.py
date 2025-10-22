@@ -39,7 +39,7 @@ class MapReduceSearchAgent:
     # 节点函数：工作流中的各个处理步骤
     # ------------------------------
     def fetch_communities(self, state: MapReduceState) -> dict:
-        """获取指定层级的社区数据（初始节点）"""
+        """获取指定层级的社区数据"""
         communities = self.graph.query(
             """
             MATCH (c:__Community__)
@@ -52,28 +52,20 @@ class MapReduceSearchAgent:
 
     def map_process(self, state: MapReduceState) -> dict:
         """Map阶段：处理单个社区数据"""
-        # 从状态中获取当前社区数据（由Send传递的临时参数）
-        current_community = state.get("current_community")
+        current_community = state["communities"][0] if state["communities"] else None
         if not current_community:
-            return {"intermediate_results": [""]}
+            return {"intermediate_results": ["未获取到有效社区数据"]}
 
-        # 构建Map阶段提示模板
+        # 构建Map提示
         map_prompt = ChatPromptTemplate.from_messages([
             ("system", MAP_SYSTEM_PROMPT),
-            ("human", """
-                ---数据表格--- 
-                {context_data}
-                
-                用户的问题是：
-                {question}
-                """),
+            ("human", "---数据表格---\n{context_data}\n用户的问题是：{question}"),
         ])
 
-        # 执行Map处理
         map_chain = map_prompt | self.llm | StrOutputParser()
         result = map_chain.invoke({
             "question": state["query"],
-            "context_data": current_community["output"]
+            "context_data": current_community["output"]  # 正确读取社区数据
         })
         return {"intermediate_results": [result]}
 
@@ -108,7 +100,7 @@ class MapReduceSearchAgent:
     def route_to_map(self, state: MapReduceState) -> List[Send]:
         """根据社区列表生成Map任务分发"""
         return [
-            Send("map_process", {"current_community": community})
+            Send("map_process", {"communities": [community], "query": state["query"], "intermediate_results": []})
             for community in state["communities"]
         ]
 
@@ -145,14 +137,14 @@ class MapReduceSearchAgent:
     # ------------------------------
     def search(self, query: str, level: int) -> str:
         """执行Map-Reduce检索"""
-        result = self.workflow.invoke({
-            "query": query,
-            "level": level,
-            "communities": [],
-            "intermediate_results": [],
-            "final_answer": ""
-        })
-        return result["final_answer"]
+        result = self.workflow.invoke(MapReduceState(
+            query=query,
+            level=level,
+            communities=[],
+            intermediate_results=[],
+            final_answer=""
+        ))
+        return result['final_answer']
 
     def get_agent(self):
         return self.workflow

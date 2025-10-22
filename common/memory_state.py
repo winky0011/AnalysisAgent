@@ -14,15 +14,14 @@ class CustomState(AgentState):
     csv_meta: NotRequired[Dict[str, Any]]  # csv文件元数据
 
 
-class MapReduceState(BaseModel):
-    """Map-Reduce工作流的完整状态"""
-    query: str  # 用户查询（必填，自动从messages提取）
-    level: int = 1
-    communities: List[dict] = []
-    intermediate_results: Annotated[List[str], operator.add] = []
-    final_answer: str = ""
-    remaining_steps: int = 24
-
+class MapReduceState(TypedDict):
+    query: str
+    level: int
+    communities: List[dict]
+    intermediate_results: Annotated[List[str], operator.add]
+    final_answer: str
+    remaining_steps: int
+    current_community: Optional[dict]
 
 # ------------------------------
 # 长期记忆的存储结构

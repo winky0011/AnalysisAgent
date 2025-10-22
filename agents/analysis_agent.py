@@ -22,6 +22,27 @@ from langgraph.graph import END
 
 load_dotenv()
 
+@tool("map_reduce_search", description="Map-Reduce 模式，在整个知识图谱的指定层级社区中进行全局扫描，输出对全局数据的整合性回答")
+def map_reduce_search_tool(
+    state: Annotated[CustomState, InjectedState],
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    query: str,
+    level: int
+):
+    """
+    调用 MapReduceSearchAgent 进行检索。
+    args：
+        query: 检索查询语句
+        level: 一个非负整数（如 0、1、2...），数值越小表示社区越 “顶层”（抽象、范围大），数值越大表示社区越 “底层”（具体、范围小）。
+    """
+    map_reduce_agent = MapReduceSearchAgent()
+    result = map_reduce_agent.search(query, level)
+    return {
+        "tool_call_id": tool_call_id,
+        "status": "success", 
+        "message": result,
+    }
+
 class AnalysisAgent:
     """
     负责根据用户输入的需求，检索 Neo4j 图数据库并生成结构化分析报告。
@@ -60,20 +81,10 @@ class AnalysisAgent:
         tools = []
         # tools.extend(get_neo4j_tools())
         tools.extend(get_report_tools())
-
-        assign_agent = self._init_agents()
-        tools.extend(assign_agent)
+        tools.append(map_reduce_search_tool)
 
         return tools
     
-    def _init_agents(self):
-        """初始化智能体集"""
-        assign_to_mapreduce_workflow = self._create_handoff_tool(
-            agent_name="map_reduce_workflow",
-            description="将任务转交给MapReduce workflow，处理需分治计算的检索需求",
-        )
-
-        return [assign_to_mapreduce_workflow]
 
     def _init_llm(self):
         """初始化大语言模型"""
@@ -83,69 +94,15 @@ class AnalysisAgent:
             base_url=os.getenv("OPENAI_BASE_URL"),
             temperature=0.3,
         )
-    
-    def _create_handoff_tool(self, *, agent_name: str, description: str | None = None):
-        name = f"transfer_to_{agent_name}"
-        description = description or f"将任务转交给MapReduce workflow，处理需分治计算的检索需求"
-
-        @tool(name, description=description)
-        def handoff_tool(
-            custom_state: Annotated[CustomState, InjectedState],  # 输入CustomState
-            tool_call_id: Annotated[str, InjectedToolCallId],
-        ) -> Command:
-            # 1. 生成工具调用成功消息（用于追踪转交记录）
-            tool_message = {
-                "role": "tool",
-                "content": (
-                    f"已成功转交任务至{agent_name}，携带信息："
-                    f"用户名：{custom_state.user_name or '未提供'}，"
-                    f"CSV路径：{custom_state.csv_local_path or '无'}"
-                ),
-                "name": name,
-                "tool_call_id": tool_call_id,
-            }
-
-            mapreduce_state = MapReduceState(
-                query=next(
-                    msg["content"] for msg in custom_state["messages"] 
-                    if msg["role"] == "user"  # 确保只取用户输入作为query
-                ),
-                level=1,  # 若需动态调整，可从custom_state提取（如custom_state.get("level", 1)）
-                remaining_steps=24,
-                communities=[],
-                intermediate_results=[],
-                final_answer="",
-            )
-
-            return Command(
-                goto=agent_name,
-                update=mapreduce_state,  # 更新 MapReduceState
-                graph=Command.PARENT,
-            )
-
-        return handoff_tool
 
     def _init_supervisor(self) -> Any:
         """构建分析智能体"""
-        analysis_agent = create_react_agent(
+        supervisor = create_react_agent(
             model=self.llm,
             tools=self.tools,
             prompt=neo4j_analysis_prompt,
             name="analysis_agent",
         )
-
-        map_reduce_workflow = MapReduceSearchAgent().get_agent()
-
-        supervisor = (
-            StateGraph(MessagesState)
-            .add_node(analysis_agent, destinations=("map_reduce_workflow", END))
-            .add_node(map_reduce_workflow)
-            .add_edge(START, "analysis_agent")
-            .add_edge("map_reduce_workflow", "analysis_agent")
-            .add_edge("analysis_agent", END)
-            .compile()
-        )
-
 
         return supervisor
     
