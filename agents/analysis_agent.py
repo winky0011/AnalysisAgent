@@ -22,7 +22,7 @@ from langgraph.graph import END
 
 load_dotenv()
 
-@tool("map_reduce_search", description="Map-Reduce 模式，在整个知识图谱的指定层级社区中进行全局扫描，输出对全局数据的整合性回答")
+@tool
 def map_reduce_search_tool(
     state: Annotated[CustomState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId],
@@ -33,7 +33,7 @@ def map_reduce_search_tool(
     调用 MapReduceSearchAgent 进行检索。
     args：
         query: 检索查询语句
-        level: 一个非负整数（如 0、1、2...），数值越小表示社区越 “顶层”（抽象、范围大），数值越大表示社区越 “底层”（具体、范围小）。
+        level: 0、1、2....，数值越小表示社区越 “顶层”（抽象、范围大），数值越大表示社区越 “底层”（具体、范围小）。
     """
     map_reduce_agent = MapReduceSearchAgent()
     result = map_reduce_agent.search(query, level)
@@ -79,7 +79,7 @@ class AnalysisAgent:
     def _init_tools(self):
         """初始化工具集"""
         tools = []
-        # tools.extend(get_neo4j_tools())
+        tools.extend(get_neo4j_tools())
         tools.extend(get_report_tools())
         tools.append(map_reduce_search_tool)
 
