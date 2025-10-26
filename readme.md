@@ -39,6 +39,7 @@ AnalysisAgent是一个基于LangGraph的智能分析代理，用于分析用户�
 - https://github.com/24mlight/a-share-mcp-is-just-i-need
 - https://github.com/anthropics/skills
 - https://github.com/infiniflow/ragflow/tree/main
+- https://docs.ragas.io/en/latest/getstarted/index.html
 
 
 ## 2. 使用方法
