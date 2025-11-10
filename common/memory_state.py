@@ -12,6 +12,8 @@ class CustomState(AgentState):
     user_id: NotRequired[str]
     csv_local_path: NotRequired[str]  # csv文件
     csv_meta: NotRequired[Dict[str, Any]]  # csv文件元数据
+    pending_memory_write: NotRequired[Dict[str, Any]]
+    last_memory_routed_message: NotRequired[str]
 
 
 class MapReduceState(TypedDict):

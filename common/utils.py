@@ -32,6 +32,10 @@ def pretty_print_messages(update, last_message=False):
         print(update_label)
         print("\n")
 
+        # 某些节点更新（如内部工具或进度节点）可能不包含 messages 字段，需跳过
+        if not isinstance(node_update, dict) or "messages" not in node_update:
+            continue
+
         messages = convert_to_messages(node_update["messages"])
         if last_message:
             messages = messages[-1:]

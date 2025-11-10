@@ -9,7 +9,6 @@ from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langgraph.store.memory import InMemoryStore
 from langchain.embeddings import init_embeddings
-from langmem import create_manage_memory_tool, create_search_memory_tool
 
 from custom_tools import get_mysql_tools
 from common.memory_state import CustomState
@@ -69,10 +68,6 @@ class Text2SQLAgent:
         toolkit = SQLDatabaseToolkit(db=self.db, llm=self.llm)
         tools = toolkit.get_tools()   # langgraph中提供的工具
         tools.extend(get_mysql_tools())  # 自定义工具
-        tools.extend([
-            create_manage_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
-            create_search_memory_tool(namespace=("text2sql_memories", "{langgraph_user_id}")),
-        ])
         return tools
 
     def _init_llm(self):

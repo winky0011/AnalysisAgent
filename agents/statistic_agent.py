@@ -10,7 +10,7 @@ from langchain.embeddings import init_embeddings
 from langmem import create_memory_store_manager, ReflectionExecutor
 from langmem import create_manage_memory_tool, create_search_memory_tool
 
-from custom_tools import get_csv_tools, get_math_tools
+from custom_tools import get_csv_tools, get_math_tools, get_neo4j_tools
 from common.prompt import statistic_prompt
 from common.memory_state import CustomState, AnalysisMemory
 
@@ -69,7 +69,8 @@ class StatisticsAgent:
     def _init_tools(self):
         """初始化工具集"""
         tools = get_math_tools()
-        tools.extend(get_csv_tools())  # 自定义工具
+        tools.extend(get_csv_tools())  # 自定义CSV工具
+        tools.extend(get_neo4j_tools())  # 允许直接访问 Neo4j 进行轻量查询/聚合
         tools.extend([
             create_manage_memory_tool(namespace=("statistic_memories", "{langgraph_user_id}")),
             create_search_memory_tool(namespace=("statistic_memories", "{langgraph_user_id}")),
